@@ -7,7 +7,6 @@ import WorkshopCard from "../components/workshopCard";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { SkeletonCard } from "../components/Skeleton";
-import ServiceDownBanner from "../components/ServiceDownBanner";
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -46,8 +45,8 @@ export default function Home() {
         } else {
           res = await fetch(
             `/api/event-codes/by-owner?SlackID=${encodeURIComponent(
-              session.user.SlackID
-            )}`
+              session.user.SlackID,
+            )}`,
           );
         }
         const json = await res.json();
@@ -102,7 +101,6 @@ export default function Home() {
         py: 4,
       }}
     >
-      <ServiceDownBanner />
       <Header
         session={session}
         showProfile={showProfile}
@@ -172,8 +170,8 @@ export default function Home() {
                     setLoading(true);
                     fetch(
                       `/api/event-codes/by-owner?SlackID=${encodeURIComponent(
-                        session.user.SlackID
-                      )}`
+                        session.user.SlackID,
+                      )}`,
                     )
                       .then((res) => res.json())
                       .then((json) => {
@@ -182,7 +180,7 @@ export default function Home() {
                       })
                       .catch((err) => {
                         setError(
-                          err?.message || "Failed to load your workshops"
+                          err?.message || "Failed to load your workshops",
                         );
                       })
                       .finally(() => {

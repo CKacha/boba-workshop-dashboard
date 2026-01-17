@@ -2,7 +2,6 @@ import { Box, Alert, Button } from "theme-ui";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
-import ServiceDownBanner from "../components/ServiceDownBanner";
 
 export default function Login() {
   const router = useRouter();
@@ -16,7 +15,6 @@ export default function Login() {
 
   return (
     <>
-      <ServiceDownBanner />
       <Box
         sx={{
           display: "flex",
