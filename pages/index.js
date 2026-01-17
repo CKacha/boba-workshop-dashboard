@@ -7,6 +7,7 @@ import WorkshopCard from "../components/workshopCard";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { SkeletonCard } from "../components/Skeleton";
+import ServiceDownBanner from "../components/ServiceDownBanner";
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -101,6 +102,7 @@ export default function Home() {
         py: 4,
       }}
     >
+      <ServiceDownBanner />
       <Header
         session={session}
         showProfile={showProfile}
