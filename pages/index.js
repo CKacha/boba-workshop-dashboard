@@ -67,6 +67,7 @@ export default function Home() {
       const matchesSearch =
         searchQuery === "" ||
         event.code?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        event.clubName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         event.organizerName?.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesStatus =
         statusFilter === "All" || event.status === statusFilter;
@@ -394,6 +395,7 @@ export default function Home() {
                   <WorkshopCard
                     key={ev.id || ev.code}
                     Eventcode={ev.code}
+                    ClubName={ev.clubName}
                     EventStatus={ev.status || "Pending"}
                     OrganizerName={ev.organizerName}
                     showOrganizer={isAdmin}

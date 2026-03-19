@@ -27,7 +27,7 @@ export default async function handler(req, res) {
   try {
     const select = encodeURIComponent(
       JSON.stringify({
-        fields: ["Event Code", "Status", "Organizer Name"],
+        fields: ["Event Code", "Club Names", "Status", "Organizer Name"],
         filterByFormula: `{Slack ID} = '${sanitizedSlackID}'`,
       })
     );
@@ -77,6 +77,7 @@ export default async function handler(req, res) {
       return {
         id: r.id || fields.id || null,
         code: fields["Event Code"] || fields.code || "",
+        clubName: fields["Club Names"] || "",
         status: fields.Status || fields.status || "Pending",
       };
     });
