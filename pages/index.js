@@ -19,6 +19,7 @@ export default function Home() {
   const [statusFilter, setStatusFilter] = useState("All");
   const [sortBy, setSortBy] = useState("code");
   const [isAdmin, setIsAdmin] = useState(false);
+  const [adminStats, setAdminStats] = useState(null);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -34,6 +35,13 @@ export default function Home() {
       process.env.NEXT_PUBLIC_ADMIN_SLACK_IDS?.split(",") || [];
     const userIsAdmin = adminSlackIds.includes(session.user.SlackID);
     setIsAdmin(userIsAdmin);
+
+    if (userIsAdmin) {
+      fetch("/api/admin/stats")
+        .then((r) => r.json())
+        .then((data) => setAdminStats(data))
+        .catch(() => {});
+    }
 
     const fetchEvents = async () => {
       setLoading(true);
@@ -297,6 +305,126 @@ export default function Home() {
                     </Text>
                   </Box>
                 </Box>
+
+                {isAdmin && adminStats && (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      gap: 2,
+                      width: "100%",
+                      mb: 4,
+                      flexWrap: "wrap",
+                      pt: 3,
+                      borderTop: "1px solid rgba(255,255,255,0.07)",
+                      alignItems: "baseline",
+                    }}
+                  >
+                    <Box sx={{ display: "flex", alignItems: "baseline", gap: 2 }}>
+                      <Text
+                        sx={{
+                          fontSize: 1,
+                          color: "rgba(248, 251, 255, 0.5)",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.1em",
+                        }}
+                      >
+                        Submissions
+                      </Text>
+                      <Text
+                        sx={{ fontSize: 6, fontWeight: "bold", color: "text" }}
+                      >
+                        {adminStats.totalSubmissions}
+                      </Text>
+                    </Box>
+                    <Box
+                      sx={{ width: "1px", bg: "rgba(255,255,255,0.1)", mx: 2 }}
+                    />
+                    <Box sx={{ display: "flex", alignItems: "baseline", gap: 2 }}>
+                      <Text
+                        sx={{
+                          fontSize: 1,
+                          color: "#33D6A6",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.1em",
+                        }}
+                      >
+                        Approved
+                      </Text>
+                      <Text
+                        sx={{ fontSize: 6, fontWeight: "bold", color: "#33D6A6" }}
+                      >
+                        {adminStats.approvedSubmissions}
+                      </Text>
+                    </Box>
+                    <Box
+                      sx={{ width: "1px", bg: "rgba(255,255,255,0.1)", mx: 2 }}
+                    />
+                    <Box sx={{ display: "flex", alignItems: "baseline", gap: 2 }}>
+                      <Text
+                        sx={{
+                          fontSize: 1,
+                          color: "#EC3750",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.1em",
+                        }}
+                      >
+                        Given Out
+                      </Text>
+                      <Text
+                        sx={{ fontSize: 6, fontWeight: "bold", color: "#EC3750" }}
+                      >
+                        ${adminStats.moneyGivenOut}
+                      </Text>
+                    </Box>
+                    <Box
+                      sx={{ width: "1px", bg: "rgba(255,255,255,0.1)", mx: 2 }}
+                    />
+                    <Box sx={{ display: "flex", alignItems: "baseline", gap: 2 }}>
+                      <Text
+                        sx={{
+                          fontSize: 1,
+                          color: "#338eda",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.1em",
+                        }}
+                      >
+                        Schools Reached
+                      </Text>
+                      <Text
+                        sx={{ fontSize: 6, fontWeight: "bold", color: "#338eda" }}
+                      >
+                        {adminStats.schoolsReached}
+                      </Text>
+                    </Box>
+                    <Box sx={{ ml: "auto", display: "flex", alignItems: "center" }}>
+                      <button
+                        onClick={() => {
+                          const a = document.createElement("a");
+                          a.href = "/api/admin/stats-image";
+                          a.download = `boba-drops-stats-${new Date().toISOString().slice(0, 10)}.png`;
+                          a.click();
+                        }}
+                        style={{
+                          padding: "8px 18px",
+                          background: "rgba(255,255,255,0.06)",
+                          color: "rgba(255,255,255,0.7)",
+                          border: "1px solid rgba(255,255,255,0.15)",
+                          borderRadius: "8px",
+                          fontSize: "13px",
+                          fontWeight: "600",
+                          fontFamily: "system-ui, sans-serif",
+                          cursor: "pointer",
+                          letterSpacing: "0.02em",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px",
+                        }}
+                      >
+                        Export PNG
+                      </button>
+                    </Box>
+                  </Box>
+                )}
                 <Box
                   sx={{
                     display: "flex",
