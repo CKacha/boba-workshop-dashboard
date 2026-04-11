@@ -270,7 +270,7 @@ export default function Event() {
                   pr: 2,
                 }}
               >
-                Event Code
+                Club
               </Text>
               <Text sx={{ fontSize: 4, fontWeight: "bold", color: "text" }}>
                 {router.query.EventCode}

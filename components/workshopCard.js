@@ -2,7 +2,7 @@ import { Box, Text } from "theme-ui";
 import { useRouter } from "next/router";
 
 export default function WorkshopCard(props) {
-  const { Eventcode, ClubName, EventStatus, OrganizerName, showOrganizer } = props;
+  const { ClubName, EventStatus, OrganizerName, showOrganizer } = props;
   const router = useRouter();
 
   const statusColors = {
@@ -11,7 +11,7 @@ export default function WorkshopCard(props) {
   };
 
   const handleNavigate = () => {
-    const target = `/event/${encodeURIComponent(Eventcode || "")}`;
+    const target = `/event/${encodeURIComponent(ClubName || "")}`;
     router.push(target);
   };
 
@@ -45,7 +45,7 @@ export default function WorkshopCard(props) {
       onKeyDown={handleKeyDown}
       role="button"
       tabIndex={0}
-      aria-label={`View workshop ${ClubName || Eventcode}`}
+      aria-label={`View workshop ${ClubName}`}
     >
       <Box>
         <Text
@@ -56,19 +56,8 @@ export default function WorkshopCard(props) {
             letterSpacing: "-0.02em",
           }}
         >
-          {ClubName || Eventcode}
+          {ClubName}
         </Text>
-        {ClubName && Eventcode && (
-          <Text
-            sx={{
-              fontSize: 1,
-              color: "rgba(248, 251, 255, 0.4)",
-              mt: 1,
-            }}
-          >
-            {Eventcode}
-          </Text>
-        )}
         {showOrganizer && OrganizerName && (
           <Text
             sx={{

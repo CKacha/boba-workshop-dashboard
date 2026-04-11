@@ -27,12 +27,12 @@ export default async function handler(req, res) {
   try {
     const select = encodeURIComponent(
       JSON.stringify({
-        fields: ["Event Code", "Club Names", "Status", "Organizer Name"],
+        fields: ["Club Names", "Status", "Organizer Name"],
         filterByFormula: `{Slack ID} = '${sanitizedSlackID}'`,
       })
     );
-    const base = encodeURIComponent("Boba Club Dashboard");
-    const url = `https://airbridge.hackclub.com/v0.2/${base}/Event Codes?select=${select}&authKey=${key}`;
+    const base = "Boba%20Club%20Dashboard";
+    const url = `https://airbridge.hackclub.com/v0.2/${base}/Club%20Workshops?select=${select}&authKey=${key}`;
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 8000);
     let resp;
@@ -76,8 +76,7 @@ export default async function handler(req, res) {
       const fields = r.fields || r;
       return {
         id: r.id || fields.id || null,
-        code: fields["Event Code"] || fields.code || "",
-        clubName: fields["Club Names"] || "",
+        clubName: fields["Club Names"]?.[0] || "",
         status: fields.Status || fields.status || "Pending",
       };
     });

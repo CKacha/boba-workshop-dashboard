@@ -66,7 +66,6 @@ export default function Home() {
     let filtered = events.filter((event) => {
       const matchesSearch =
         searchQuery === "" ||
-        event.code?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         event.clubName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         event.organizerName?.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesStatus =
@@ -77,7 +76,9 @@ export default function Home() {
     // Sort the filt  ered results
     const sorted = [...filtered].sort((a, b) => {
       if (sortBy === "code") {
-        return (a.code || "").localeCompare(b.code || "");
+        if (!a.clubName && b.clubName) return 1;
+        if (a.clubName && !b.clubName) return -1;
+        return (a.clubName || "").localeCompare(b.clubName || "");
       } else if (sortBy === "status") {
         const statusOrder = { Pending: 1, Approved: 2, Rejected: 3 };
         return (statusOrder[a.status] || 999) - (statusOrder[b.status] || 999);
@@ -371,7 +372,7 @@ export default function Home() {
                       minWidth: 160,
                     }}
                   >
-                    <option value="code">By Code</option>
+                    <option value="code">By Name</option>
                     <option value="status">By Status</option>
                   </Select>
                 </Box>
@@ -393,8 +394,7 @@ export default function Home() {
               >
                 {filteredEvents.map((ev) => (
                   <WorkshopCard
-                    key={ev.id || ev.code}
-                    Eventcode={ev.code}
+                    key={ev.id || ev.clubName}
                     ClubName={ev.clubName}
                     EventStatus={ev.status || "Pending"}
                     OrganizerName={ev.organizerName}

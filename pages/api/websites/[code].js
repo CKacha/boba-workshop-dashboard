@@ -21,17 +21,17 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Missing event code" });
   }
   try {
-    const base = encodeURIComponent("Boba Club Dashboard");
+    const base = "Boba%20Club%20Dashboard";
 
     const sanitizedCode = String(code).replace(/'/g, "\\'");
 
     const eventSelect = encodeURIComponent(
       JSON.stringify({
-        filterByFormula: `{Event Code} = '${sanitizedCode}'`,
-        fields: ["Event Code", "Status"],
+        filterByFormula: `FIND('${sanitizedCode}', ARRAYJOIN({Club Names}))`,
+        fields: ["Club Names", "Status"],
       }),
     );
-    const eventUrl = `https://airbridge.hackclub.com/v0.2/${base}/Event Codes?select=${eventSelect}&authKey=${key}`;
+    const eventUrl = `https://airbridge.hackclub.com/v0.2/${base}/Club%20Workshops?select=${eventSelect}&authKey=${key}`;
 
     let eventResp;
     try {
@@ -64,26 +64,22 @@ export default async function handler(req, res) {
     if (!eventRecords.length) {
       return res.status(404).json({ error: "Event code not found" });
     }
-    const eventId = eventRecords[0].id || eventRecords[0].fields?.id;
-
-    if (!eventId) {
-      return res.status(404).json({ error: "Event code ID missing" });
-    }
 
     const select = encodeURIComponent(
       JSON.stringify({
+        filterByFormula: `{club_name} = '${sanitizedCode}'`,
         fields: [
           "Email",
           "Name",
           "Status",
-          "Event Code",
+          "club_name",
           "Playable URL",
           "Decision Reason (to email)",
         ],
       }),
     );
 
-    const url = `https://airbridge.hackclub.com/v0.2/${base}/Websites?authKey=${key}`;
+    const url = `https://airbridge.hackclub.com/v0.2/${base}/Websites?select=${select}&authKey=${key}`;
 
     let resp;
     try {
@@ -130,21 +126,17 @@ export default async function handler(req, res) {
     const records = Array.isArray(json)
       ? json
       : json?.records || json?.data || [];
-    const normalized = records
-      .map((r) => {
-        const fields = r.fields || r;
-        if (fields["Event Code"] == eventId) {
-          return {
-            id: r.id || fields.id || null,
-            name: fields.Name || fields.name || "",
-            email: fields.Email || fields.email || "",
-            status: fields.Status || fields.status || "Pending",
-            website: fields["Playable URL"] || fields.website || "",
-            decisionReason: fields["Decision Reason (to email)"] || "",
-          };
-        }
-      })
-      .filter((e) => e !== undefined);
+    const normalized = records.map((r) => {
+      const fields = r.fields || r;
+      return {
+        id: r.id || fields.id || null,
+        name: fields.Name || fields.name || "",
+        email: fields.Email || fields.email || "",
+        status: fields.Status || fields.status || "Pending",
+        website: fields["Playable URL"] || fields.website || "",
+        decisionReason: fields["Decision Reason (to email)"] || "",
+      };
+    });
     console.log(
       `Filtering complete (request active: ${Date.now() - req._startTime}ms)`,
     );
