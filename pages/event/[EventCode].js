@@ -24,24 +24,6 @@ export default function Event() {
   const [eventStatus, setEventStatus] = useState("Active");
   const [grantRequestCooldown, setGrantRequestCooldown] = useState(null);
   const rowsPerPage = 10;
-  const StatusKey = {
-    Pending: "yellow",
-    Approved: "green",
-    Rejected: "red",
-  };
-  const normalizeStatus = (value) => (value || "Pending").toLowerCase();
-
-  const emailStatusMap = useMemo(() => {
-    const map = new Map();
-    rows.forEach((row) => {
-      const email = row.email || "";
-      const statuses = map.get(email) || [];
-      statuses.push(normalizeStatus(row.status));
-      map.set(email, statuses);
-    });
-    return map;
-  }, [rows]);
-
   const router = useRouter();
 
   useEffect(() => {
@@ -101,28 +83,23 @@ export default function Event() {
         row.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         row.website?.toLowerCase().includes(searchQuery.toLowerCase());
 
-      const normalized = normalizeStatus(row.status);
       let matchesStatus = true;
 
       if (statusFilter === "All") {
         matchesStatus = true;
-      } else if (statusFilter === "Rejected") {
-        const statuses = emailStatusMap.get(row.email || "") || [normalized];
-        const hasApproval = statuses.some((s) => s === "approved");
-        matchesStatus = normalized === "rejected" || !hasApproval;
       } else {
-        matchesStatus = normalized === statusFilter.toLowerCase();
+        matchesStatus = row.status === statusFilter;
       }
 
       return matchesSearch && matchesStatus;
     });
     setCurrentPage(1);
     return filtered;
-  }, [rows, searchQuery, statusFilter, emailStatusMap]);
+  }, [rows, searchQuery, statusFilter]);
 
   const isGrantButtonDisabled = useMemo(() => {
     const approvedCount = rows.filter(
-      (row) => normalizeStatus(row.status) === "approved",
+      (row) => row.status === "Approve",
     ).length;
     if (grantRequestCooldown) {
       const now = new Date();
@@ -134,8 +111,7 @@ export default function Event() {
   }, [rows, grantRequestCooldown, eventStatus]);
 
   const approvedCount = useMemo(() => {
-    return rows.filter((row) => normalizeStatus(row.status) === "approved")
-      .length;
+    return rows.filter((row) => row.status === "Approve").length;
   }, [rows]);
 
   const getGrantButtonText = () => {
@@ -170,7 +146,7 @@ export default function Event() {
 
   const exportToCSV = () => {
     try {
-      const headers = ["Name", "Email", "Status", "Website", "Decision Reason"];
+      const headers = ["Name", "Email", "Status", "Website", "Rejection Reason"];
       const csvContent = [
         headers.join(","),
         ...filteredRows.map((row) =>
@@ -270,7 +246,7 @@ export default function Event() {
                   pr: 2,
                 }}
               >
-                Event Code
+                Club
               </Text>
               <Text sx={{ fontSize: 4, fontWeight: "bold", color: "text" }}>
                 {router.query.EventCode}
@@ -355,8 +331,9 @@ export default function Event() {
               >
                 <option value="All">All</option>
                 <option value="Pending">Pending</option>
-                <option value="Approved">Approved</option>
-                <option value="Rejected">Rejected</option>
+                <option value="Approve">Approve</option>
+                <option value="Reject">Reject</option>
+                <option value="Needs Changes">Needs Changes</option>
               </Select>
               <Button
                 onClick={exportToCSV}
@@ -582,9 +559,11 @@ export default function Event() {
                               background:
                                 row.status === "Pending"
                                   ? "#FFC857"
-                                  : row.status === "Approved"
+                                  : row.status === "Approve"
                                     ? "#33D6A6"
-                                    : "#EC3750",
+                                    : row.status === "Needs Changes"
+                                      ? "#FF8C42"
+                                      : "#EC3750",
                               color: "#000",
                             }}
                           >

@@ -17,16 +17,16 @@ export default async function handler(req, res) {
   }
 
   const key = process.env.AIRBRIDGE_API_KEY;
+  const airbridgeBase = process.env.DEV === "true" ? "http://localhost:5000" : "https://airbridge.hackclub.com";
   if (!key) return res.status(500).json({ error: "Missing AIRBRIDGE_API_KEY" });
 
   try {
     const select = encodeURIComponent(
       JSON.stringify({
-        fields: ["Event Code", "Club Names", "Status", "Organizer Name", "Slack ID"],
+        fields: ["Club Names", "Status", "Organizer Name", "Slack ID"],
       })
     );
-    const base = encodeURIComponent("Boba Club Dashboard");
-    const url = `https://airbridge.hackclub.com/v0.2/${base}/Event Codes?select=${select}&authKey=${key}`;
+    const url = `${airbridgeBase}/v0.2/Boba%20Club%20Dashboard/Club%20Workshops?select=${select}&authKey=${key}`;
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 8000);
     let resp;
@@ -70,8 +70,7 @@ export default async function handler(req, res) {
       const fields = r.fields || r;
       return {
         id: r.id || fields.id || null,
-        code: fields["Event Code"] || fields.code || "",
-        clubName: fields["Club Names"] || "",
+        clubName: fields["Club Names"]?.[0] || "",
         status: fields.Status || fields.status || "Active",
         organizerName: fields["Organizer Name"] || "",
         slackId: fields["Slack ID"] || "",

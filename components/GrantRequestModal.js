@@ -80,7 +80,7 @@ export default function GrantRequestModal({ eventCode, approvedCount, onClose, o
           Request Grant
         </Text>
         <Text sx={{ fontSize: 1, color: "rgba(248, 251, 255, 0.6)", mb: 3 }}>
-          Event Code: {eventCode}
+          Club: {eventCode}
         </Text>
 
         <Box sx={{ bg: "rgba(51, 214, 166, 0.1)", border: "1px solid rgba(51, 214, 166, 0.3)", borderRadius: 4, p: 3, mb: 4 }}>

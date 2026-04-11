@@ -73,7 +73,7 @@ export default async function handler(req, res) {
           fields: [
             {
               type: "mrkdwn",
-              text: `*Event Code:*\n${sanitizedEventCode}`
+              text: `*Club:*\n${sanitizedEventCode}`
             },
             {
               type: "mrkdwn",
