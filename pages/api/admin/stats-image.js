@@ -17,76 +17,6 @@ const LOGO_SVG = `<svg viewBox="0 0 337 154" fill="none" xmlns="http://www.w3.or
 
 const LOGO_DATA_URI = `data:image/svg+xml;base64,${Buffer.from(LOGO_SVG).toString("base64")}`;
 
-async function fetchStats(req, res) {
-  const key = process.env.AIRBRIDGE_API_KEY;
-  const base =
-    process.env.DEV === "true"
-      ? "http://localhost:5000"
-      : "https://airbridge.hackclub.com";
-
-  // Fetch all workshops
-  const workshopSelect = encodeURIComponent(
-    JSON.stringify({ fields: ["Club Names", "Status"] })
-  );
-  const workshopUrl = `${base}/v0.2/Boba%20Club%20Dashboard/Club%20Workshops?select=${workshopSelect}&authKey=${key}`;
-
-  // Fetch all submissions
-  const websiteSelect = encodeURIComponent(
-    JSON.stringify({
-      fields: [
-        "Project Status",
-        "club_name (from Active Clubs) (from Club)",
-      ],
-    })
-  );
-  const websiteUrl = `${base}/v0.2/Boba%20Club%20Dashboard/Websites?select=${websiteSelect}&authKey=${key}`;
-
-  const [workshopResp, websiteResp] = await Promise.all([
-    fetch(workshopUrl, { headers: { Accept: "application/json" } }),
-    fetch(websiteUrl, { headers: { Accept: "application/json" } }),
-  ]);
-
-  const workshopJson = await workshopResp.json();
-  const websiteJson = await websiteResp.json();
-
-  const workshops = Array.isArray(workshopJson)
-    ? workshopJson
-    : workshopJson?.records || workshopJson?.data || [];
-
-  const websites = Array.isArray(websiteJson)
-    ? websiteJson
-    : websiteJson?.records || websiteJson?.data || [];
-
-  const totalWorkshops = workshops.length;
-  const activeWorkshops = workshops.filter((r) => {
-    const f = r.fields || r;
-    return (f.Status || f.status) === "Active";
-  }).length;
-
-  let totalSubmissions = 0;
-  let approvedSubmissions = 0;
-  const clubsWithSubmissions = new Set();
-
-  for (const r of websites) {
-    const fields = r.fields || r;
-    const status = fields["Project Status"] || "";
-    const clubArr = fields["club_name (from Active Clubs) (from Club)"];
-    const clubName = Array.isArray(clubArr) ? clubArr[0] : clubArr || "";
-    totalSubmissions++;
-    if (status === "Approve") approvedSubmissions++;
-    if (clubName) clubsWithSubmissions.add(clubName);
-  }
-
-  return {
-    totalWorkshops,
-    activeWorkshops,
-    totalSubmissions,
-    approvedSubmissions,
-    moneyGivenOut: approvedSubmissions * 5,
-    schoolsReached: clubsWithSubmissions.size,
-  };
-}
-
 export default async function handler(req, res) {
   const session = await getServerSession(req, res, authOptions);
   if (!session) return res.status(401).json({ error: "Unauthorized" });
@@ -97,24 +27,13 @@ export default async function handler(req, res) {
     return res.status(403).json({ error: "Forbidden" });
   }
 
-  const key = process.env.AIRBRIDGE_API_KEY;
-  if (!key) return res.status(500).json({ error: "Missing AIRBRIDGE_API_KEY" });
-
-  let stats;
-  try {
-    stats = await fetchStats(req, res);
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
-  }
-
-  const {
-    totalWorkshops,
-    activeWorkshops,
-    totalSubmissions,
-    approvedSubmissions,
-    moneyGivenOut,
-    schoolsReached,
-  } = stats;
+  // Stats are passed as query params from the frontend (already loaded)
+  const totalWorkshops = Number(req.query.totalWorkshops) || 0;
+  const activeWorkshops = Number(req.query.activeWorkshops) || 0;
+  const totalSubmissions = Number(req.query.totalSubmissions) || 0;
+  const approvedSubmissions = Number(req.query.approvedSubmissions) || 0;
+  const moneyGivenOut = Number(req.query.moneyGivenOut) || 0;
+  const schoolsReached = Number(req.query.schoolsReached) || 0;
 
   const imageResponse = new ImageResponse(
     {

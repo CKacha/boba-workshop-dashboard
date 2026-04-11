@@ -399,8 +399,16 @@ export default function Home() {
                     <Box sx={{ ml: "auto", display: "flex", alignItems: "center" }}>
                       <button
                         onClick={() => {
+                          const params = new URLSearchParams({
+                            totalWorkshops: stats.total,
+                            activeWorkshops: stats.active,
+                            totalSubmissions: adminStats.totalSubmissions,
+                            approvedSubmissions: adminStats.approvedSubmissions,
+                            moneyGivenOut: adminStats.moneyGivenOut,
+                            schoolsReached: adminStats.schoolsReached,
+                          });
                           const a = document.createElement("a");
-                          a.href = "/api/admin/stats-image";
+                          a.href = `/api/admin/stats-image?${params}`;
                           a.download = `boba-drops-stats-${new Date().toISOString().slice(0, 10)}.png`;
                           a.click();
                         }}
