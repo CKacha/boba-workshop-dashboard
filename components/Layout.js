@@ -9,7 +9,7 @@ const navLinks = [
   { href: "#resources", label: "Resources" },
 ];
 
-const MAINTENANCE_MODE = true;
+const MAINTENANCE_MODE = false;
 
 const stripeStyle = {
   position: "fixed",
