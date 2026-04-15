@@ -22,6 +22,13 @@ export default async function handler(req, res) {
     additionalInfo,
   } = req.body;
   const slackWebhookUrl = process.env.SLACK_WEBHOOK_URL;
+  const key = process.env.AIRBRIDGE_API_KEY;
+  const airbridgeBase =
+    process.env.DEV === "true"
+      ? "http://localhost:5000"
+      : "https://airbridge.hackclub.com";
+
+  if (!key) return res.status(500).json({ error: "Missing AIRBRIDGE_API_KEY" });
 
   // Validate required fields
   if (
@@ -33,6 +40,46 @@ export default async function handler(req, res) {
     !paymentMethod
   ) {
     return res.status(400).json({ error: "Missing required fields" });
+  }
+
+  {
+    const adminSlackIds =
+      process.env.NEXT_PUBLIC_ADMIN_SLACK_IDS?.split(",") || [];
+    const isAdmin = adminSlackIds.includes(session.user.SlackID);
+    if (!isAdmin) {
+      const sanitizedClub = String(clubName).replace(/'/g, "\\'");
+      const select = encodeURIComponent(
+        JSON.stringify({
+          filterByFormula: `AND({Club Names} = '${sanitizedClub}', NOT({Status} = 'Rejected'))`,
+          fields: ["Club Names", "Slack ID"],
+        }),
+      );
+      const clubUrl = `${airbridgeBase}/v0.2/Boba%20Club%20Dashboard/Club%20Workshops?select=${select}&authKey=${key}`;
+      let clubResp;
+      try {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 8000);
+        try {
+          clubResp = await fetch(clubUrl, { signal: controller.signal });
+        } finally {
+          clearTimeout(timer);
+        }
+      } catch (err) {
+        if (err.name === "AbortError")
+          return res.status(504).json({ error: "Club lookup timed out" });
+        throw err;
+      }
+      const clubJson = await clubResp.json().catch(() => null);
+      const clubRecords = Array.isArray(clubJson)
+        ? clubJson
+        : clubJson?.records || clubJson?.data || [];
+      const clubSlackId = clubRecords[0]?.fields?.["Slack ID"];
+      if (!clubSlackId || session.user.SlackID !== clubSlackId) {
+        return res
+          .status(403)
+          .json({ error: "Forbidden: Not the organizer for this club" });
+      }
+    }
   }
 
   // Validate email format
@@ -54,12 +101,9 @@ export default async function handler(req, res) {
     numApprovedCount < 3 ||
     numApprovedCount > 10000
   ) {
-    return res
-      .status(400)
-      .json({
-        error:
-          "Invalid approved count - minimum 3 approved submissions required",
-      });
+    return res.status(400).json({
+      error: "Invalid approved count - minimum 3 approved submissions required",
+    });
   }
 
   // Validate payment method is one of the allowed values

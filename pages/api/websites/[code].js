@@ -69,6 +69,16 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: "Event code not found" });
     }
 
+    const adminSlackIds =
+      process.env.NEXT_PUBLIC_ADMIN_SLACK_IDS?.split(",") || [];
+    const isAdmin = adminSlackIds.includes(session.user.SlackID);
+    const eventSlackId = eventRecords[0]?.fields?.["Slack ID"];
+    if (!isAdmin && session.user.SlackID !== eventSlackId) {
+      return res
+        .status(403)
+        .json({ error: "Forbidden: Not the organizer for this club" });
+    }
+
     const select = encodeURIComponent(
       JSON.stringify({
         filterByFormula: `{club_name (from Active Clubs) (from Club)} = '${sanitizedCode}'`,
