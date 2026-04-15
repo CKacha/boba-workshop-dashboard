@@ -1,7 +1,12 @@
 import { Box, Button, Select, Textarea, Text, Input } from "theme-ui";
 import { useState } from "react";
 
-export default function GrantRequestModal({ eventCode, approvedCount, onClose, onSuccess }) {
+export default function GrantRequestModal({
+  clubName,
+  approvedCount,
+  onClose,
+  onSuccess,
+}) {
   const [organizerName, setOrganizerName] = useState("");
   const [organizerEmail, setOrganizerEmail] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("Reimbursement");
@@ -23,7 +28,7 @@ export default function GrantRequestModal({ eventCode, approvedCount, onClose, o
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          eventCode,
+          clubName,
           organizerName,
           organizerEmail,
           amount: totalAmount,
@@ -80,10 +85,18 @@ export default function GrantRequestModal({ eventCode, approvedCount, onClose, o
           Request Grant
         </Text>
         <Text sx={{ fontSize: 1, color: "rgba(248, 251, 255, 0.6)", mb: 3 }}>
-          Club: {eventCode}
+          Club: {clubName}
         </Text>
 
-        <Box sx={{ bg: "rgba(51, 214, 166, 0.1)", border: "1px solid rgba(51, 214, 166, 0.3)", borderRadius: 4, p: 3, mb: 4 }}>
+        <Box
+          sx={{
+            bg: "rgba(51, 214, 166, 0.1)",
+            border: "1px solid rgba(51, 214, 166, 0.3)",
+            borderRadius: 4,
+            p: 3,
+            mb: 4,
+          }}
+        >
           <Text sx={{ fontSize: 1, color: "rgba(248, 251, 255, 0.6)", mb: 1 }}>
             Total Grant Amount
           </Text>
@@ -91,13 +104,16 @@ export default function GrantRequestModal({ eventCode, approvedCount, onClose, o
             ${totalAmount}
           </Text>
           <Text sx={{ fontSize: 1, color: "rgba(248, 251, 255, 0.5)", mt: 1 }}>
-            {approvedCount} approved submission{approvedCount !== 1 ? 's' : ''} × $5 each
+            {approvedCount} approved submission{approvedCount !== 1 ? "s" : ""}{" "}
+            × $5 each
           </Text>
         </Box>
 
         <form onSubmit={handleSubmit}>
           <Box sx={{ mb: 3 }}>
-            <Text sx={{ fontSize: 1, mb: 2, color: "rgba(248, 251, 255, 0.8)" }}>
+            <Text
+              sx={{ fontSize: 1, mb: 2, color: "rgba(248, 251, 255, 0.8)" }}
+            >
               Your Name
             </Text>
             <Input
@@ -122,7 +138,9 @@ export default function GrantRequestModal({ eventCode, approvedCount, onClose, o
           </Box>
 
           <Box sx={{ mb: 3 }}>
-            <Text sx={{ fontSize: 1, mb: 2, color: "rgba(248, 251, 255, 0.8)" }}>
+            <Text
+              sx={{ fontSize: 1, mb: 2, color: "rgba(248, 251, 255, 0.8)" }}
+            >
               Your Email
             </Text>
             <Input
@@ -148,7 +166,9 @@ export default function GrantRequestModal({ eventCode, approvedCount, onClose, o
           </Box>
 
           <Box sx={{ mb: 3 }}>
-            <Text sx={{ fontSize: 1, mb: 2, color: "rgba(248, 251, 255, 0.8)" }}>
+            <Text
+              sx={{ fontSize: 1, mb: 2, color: "rgba(248, 251, 255, 0.8)" }}
+            >
               Payment Method
             </Text>
             <Select
@@ -177,7 +197,9 @@ export default function GrantRequestModal({ eventCode, approvedCount, onClose, o
           </Box>
 
           <Box sx={{ mb: 4 }}>
-            <Text sx={{ fontSize: 1, mb: 2, color: "rgba(248, 251, 255, 0.8)" }}>
+            <Text
+              sx={{ fontSize: 1, mb: 2, color: "rgba(248, 251, 255, 0.8)" }}
+            >
               Additional Information (Optional)
             </Text>
             <Textarea
@@ -204,9 +226,7 @@ export default function GrantRequestModal({ eventCode, approvedCount, onClose, o
           </Box>
 
           {error && (
-            <Text sx={{ color: "#EC3750", fontSize: 1, mb: 3 }}>
-              {error}
-            </Text>
+            <Text sx={{ color: "#EC3750", fontSize: 1, mb: 3 }}>{error}</Text>
           )}
 
           <Box sx={{ display: "flex", gap: 2, justifyContent: "flex-end" }}>
