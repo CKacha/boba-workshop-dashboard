@@ -49,10 +49,10 @@ export default function Home() {
       try {
         let res;
         if (userIsAdmin) {
-          res = await fetch(`/api/event-codes/all`);
+          res = await fetch(`/api/workshops/all`);
         } else {
           res = await fetch(
-            `/api/event-codes/by-owner?SlackID=${encodeURIComponent(
+            `/api/workshops/by-owner?SlackID=${encodeURIComponent(
               session.user.SlackID,
             )}`,
           );
@@ -179,7 +179,7 @@ export default function Home() {
                     setError("");
                     setLoading(true);
                     fetch(
-                      `/api/event-codes/by-owner?SlackID=${encodeURIComponent(
+                      `/api/workshops/by-owner?SlackID=${encodeURIComponent(
                         session.user.SlackID,
                       )}`,
                     )
@@ -319,7 +319,9 @@ export default function Home() {
                       alignItems: "baseline",
                     }}
                   >
-                    <Box sx={{ display: "flex", alignItems: "baseline", gap: 2 }}>
+                    <Box
+                      sx={{ display: "flex", alignItems: "baseline", gap: 2 }}
+                    >
                       <Text
                         sx={{
                           fontSize: 1,
@@ -339,7 +341,9 @@ export default function Home() {
                     <Box
                       sx={{ width: "1px", bg: "rgba(255,255,255,0.1)", mx: 2 }}
                     />
-                    <Box sx={{ display: "flex", alignItems: "baseline", gap: 2 }}>
+                    <Box
+                      sx={{ display: "flex", alignItems: "baseline", gap: 2 }}
+                    >
                       <Text
                         sx={{
                           fontSize: 1,
@@ -351,7 +355,11 @@ export default function Home() {
                         Approved
                       </Text>
                       <Text
-                        sx={{ fontSize: 6, fontWeight: "bold", color: "#33D6A6" }}
+                        sx={{
+                          fontSize: 6,
+                          fontWeight: "bold",
+                          color: "#33D6A6",
+                        }}
                       >
                         {adminStats.approvedSubmissions}
                       </Text>
@@ -359,7 +367,9 @@ export default function Home() {
                     <Box
                       sx={{ width: "1px", bg: "rgba(255,255,255,0.1)", mx: 2 }}
                     />
-                    <Box sx={{ display: "flex", alignItems: "baseline", gap: 2 }}>
+                    <Box
+                      sx={{ display: "flex", alignItems: "baseline", gap: 2 }}
+                    >
                       <Text
                         sx={{
                           fontSize: 1,
@@ -371,7 +381,11 @@ export default function Home() {
                         Given Out
                       </Text>
                       <Text
-                        sx={{ fontSize: 6, fontWeight: "bold", color: "#EC3750" }}
+                        sx={{
+                          fontSize: 6,
+                          fontWeight: "bold",
+                          color: "#EC3750",
+                        }}
                       >
                         ${adminStats.moneyGivenOut}
                       </Text>
@@ -379,7 +393,9 @@ export default function Home() {
                     <Box
                       sx={{ width: "1px", bg: "rgba(255,255,255,0.1)", mx: 2 }}
                     />
-                    <Box sx={{ display: "flex", alignItems: "baseline", gap: 2 }}>
+                    <Box
+                      sx={{ display: "flex", alignItems: "baseline", gap: 2 }}
+                    >
                       <Text
                         sx={{
                           fontSize: 1,
@@ -391,12 +407,18 @@ export default function Home() {
                         Schools Reached
                       </Text>
                       <Text
-                        sx={{ fontSize: 6, fontWeight: "bold", color: "#338eda" }}
+                        sx={{
+                          fontSize: 6,
+                          fontWeight: "bold",
+                          color: "#338eda",
+                        }}
                       >
                         {adminStats.schoolsReached}
                       </Text>
                     </Box>
-                    <Box sx={{ ml: "auto", display: "flex", alignItems: "center" }}>
+                    <Box
+                      sx={{ ml: "auto", display: "flex", alignItems: "center" }}
+                    >
                       <button
                         onClick={() => {
                           const params = new URLSearchParams({

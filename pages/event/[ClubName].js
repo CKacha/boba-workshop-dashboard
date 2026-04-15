@@ -30,7 +30,7 @@ export default function Event() {
     if (status === "loading" || !router.isReady) return;
     if (status !== "authenticated") return;
 
-    const code = router.query.EventCode;
+    const code = router.query.ClubName;
 
     const cooldownKey = `grant-request-${code}`;
     const storedCooldown = localStorage.getItem(cooldownKey);
@@ -65,7 +65,7 @@ export default function Event() {
     };
 
     fetchData();
-  }, [status, router.isReady, router.query.EventCode]);
+  }, [status, router.isReady, router.query.ClubName]);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -98,9 +98,7 @@ export default function Event() {
   }, [rows, searchQuery, statusFilter]);
 
   const isGrantButtonDisabled = useMemo(() => {
-    const approvedCount = rows.filter(
-      (row) => row.status === "Approve",
-    ).length;
+    const approvedCount = rows.filter((row) => row.status === "Approve").length;
     if (grantRequestCooldown) {
       const now = new Date();
       const cooldownTime = new Date(grantRequestCooldown);
@@ -130,7 +128,7 @@ export default function Event() {
   };
 
   const handleGrantSuccess = (message, requestedAt) => {
-    const cooldownKey = `grant-request-${router.query.EventCode}`;
+    const cooldownKey = `grant-request-${router.query.ClubName}`;
     localStorage.setItem(cooldownKey, requestedAt);
     setGrantRequestCooldown(new Date(requestedAt));
     setToast({ message, type: "success" });
@@ -146,7 +144,13 @@ export default function Event() {
 
   const exportToCSV = () => {
     try {
-      const headers = ["Name", "Email", "Status", "Website", "Rejection Reason"];
+      const headers = [
+        "Name",
+        "Email",
+        "Status",
+        "Website",
+        "Rejection Reason",
+      ];
       const csvContent = [
         headers.join(","),
         ...filteredRows.map((row) =>
@@ -166,7 +170,7 @@ export default function Event() {
       link.setAttribute("href", url);
       link.setAttribute(
         "download",
-        `workshop-${router.query.EventCode}-${
+        `workshop-${router.query.ClubName}-${
           new Date().toISOString().split("T")[0]
         }.csv`,
       );
@@ -204,7 +208,7 @@ export default function Event() {
       )}
       {showGrantModal && (
         <GrantRequestModal
-          eventCode={router.query.EventCode}
+          clubName={router.query.ClubName}
           approvedCount={approvedCount}
           onClose={() => setShowGrantModal(false)}
           onSuccess={handleGrantSuccess}
@@ -220,7 +224,7 @@ export default function Event() {
           <Breadcrumb
             items={[
               { label: "Dashboard", href: "/" },
-              { label: `Event ${router.query.EventCode || ""}` },
+              { label: router.query.ClubName || "" },
             ]}
           />
           <Box
@@ -249,7 +253,7 @@ export default function Event() {
                 Club
               </Text>
               <Text sx={{ fontSize: 4, fontWeight: "bold", color: "text" }}>
-                {router.query.EventCode}
+                {router.query.ClubName}
               </Text>
             </Box>
             <Button
@@ -473,7 +477,7 @@ export default function Event() {
                             onClick={() => {
                               setError("");
                               setLoading(true);
-                              const code = router.query.EventCode;
+                              const code = router.query.ClubName;
                               fetch(`/api/websites/${encodeURIComponent(code)}`)
                                 .then((res) => res.json())
                                 .then((json) => {

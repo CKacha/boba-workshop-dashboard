@@ -13,7 +13,10 @@ export default async function handler(req, res) {
 
   const { code } = req.query;
   const key = process.env.AIRBRIDGE_API_KEY;
-  const airbridgeBase = process.env.DEV === "true" ? "http://localhost:5000" : "https://airbridge.hackclub.com";
+  const airbridgeBase =
+    process.env.DEV === "true"
+      ? "http://localhost:5000"
+      : "https://airbridge.hackclub.com";
 
   if (!key) {
     return res.status(500).json({ error: "Missing AIRBRIDGE_API_KEY" });
@@ -29,7 +32,7 @@ export default async function handler(req, res) {
     const eventSelect = encodeURIComponent(
       JSON.stringify({
         filterByFormula: `AND({Club Names} = '${sanitizedCode}', NOT({Status} = 'Rejected'))`,
-        fields: ["Club Names", "Status"],
+        fields: ["Club Names", "Status", "Slack ID"],
       }),
     );
     const eventUrl = `${airbridgeBase}/v0.2/${base}/Club%20Workshops?select=${eventSelect}&authKey=${key}`;
@@ -64,6 +67,16 @@ export default async function handler(req, res) {
       : eventJson?.records || eventJson?.data || [];
     if (!eventRecords.length) {
       return res.status(404).json({ error: "Event code not found" });
+    }
+
+    const adminSlackIds =
+      process.env.NEXT_PUBLIC_ADMIN_SLACK_IDS?.split(",") || [];
+    const isAdmin = adminSlackIds.includes(session.user.SlackID);
+    const eventSlackId = eventRecords[0]?.fields?.["Slack ID"];
+    if (!isAdmin && session.user.SlackID !== eventSlackId) {
+      return res
+        .status(403)
+        .json({ error: "Forbidden: Not the organizer for this club" });
     }
 
     const select = encodeURIComponent(
@@ -132,7 +145,12 @@ export default async function handler(req, res) {
       const fields = r.fields || r;
       return {
         id: r.id || fields.id || null,
-        name: [fields["First Name"], fields["Last Name"]].filter(Boolean).join(" ") || fields.Name || "",
+        name:
+          [fields["First Name"], fields["Last Name"]]
+            .filter(Boolean)
+            .join(" ") ||
+          fields.Name ||
+          "",
         email: fields.Email || fields.email || "",
         status: fields["Project Status"] || "Pending",
         website: fields["Playable URL"] || fields.website || "",
