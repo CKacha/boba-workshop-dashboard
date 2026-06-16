@@ -8,28 +8,33 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
-  const { SlackID } = req.query;
+  const { email } = req.query;
   const key = process.env.AIRBRIDGE_API_KEY;
   const airbridgeBase = process.env.DEV === "true" ? "http://localhost:5000" : "https://airbridge.hackclub.com";
   if (!key) return res.status(500).json({ error: "Missing AIRBRIDGE_API_KEY" });
-  if (!SlackID) return res.status(400).json({ error: "Missing SlackID" });
+  if (!email) return res.status(400).json({ error: "Missing email" });
 
-  // Verify user can only access their own data (unless admin)
+  // Verify user can only access their own data (unless admin).
+  // Workshops are matched by email: the logged-in Slack email must equal
+  // the workshop's Email field.
   const adminSlackIds = process.env.NEXT_PUBLIC_ADMIN_SLACK_IDS?.split(',') || [];
   const isAdmin = adminSlackIds.includes(session.user.SlackID);
 
-  if (!isAdmin && session.user.SlackID !== SlackID) {
+  const requestedEmail = String(email).trim().toLowerCase();
+  const sessionEmail = String(session.user.email || "").trim().toLowerCase();
+
+  if (!isAdmin && sessionEmail !== requestedEmail) {
     return res.status(403).json({ error: "Forbidden: Can only access your own data" });
   }
 
-  // Sanitize SlackID to prevent injection
-  const sanitizedSlackID = String(SlackID).replace(/'/g, "\\'");
+  // Sanitize email to prevent injection into the filter formula
+  const sanitizedEmail = requestedEmail.replace(/'/g, "\\'");
 
   try {
     const select = encodeURIComponent(
       JSON.stringify({
         fields: ["Club Names", "Status", "Organizer Name"],
-        filterByFormula: `{Slack ID} = '${sanitizedSlackID}'`,
+        filterByFormula: `LOWER({Email}) = '${sanitizedEmail}'`,
       })
     );
     const base = "Boba%20Club%20Dashboard";

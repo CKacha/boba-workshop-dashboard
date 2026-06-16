@@ -52,8 +52,8 @@ export default function Home() {
           res = await fetch(`/api/workshops/all`);
         } else {
           res = await fetch(
-            `/api/workshops/by-owner?SlackID=${encodeURIComponent(
-              session.user.SlackID,
+            `/api/workshops/by-owner?email=${encodeURIComponent(
+              session.user.email,
             )}`,
           );
         }
@@ -128,6 +128,37 @@ export default function Home() {
         {status === "unauthenticated" && <Text>Redirecting to sign in...</Text>}
         {status === "authenticated" && (
           <>
+            {!isAdmin && (
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 2,
+                  mb: 4,
+                  px: 3,
+                  py: 2,
+                  borderRadius: 4,
+                  bg: "rgba(51, 142, 218, 0.1)",
+                  border: "1px solid rgba(51, 142, 218, 0.3)",
+                }}
+              >
+                <Text sx={{ fontSize: 2 }}>ℹ️</Text>
+                <Text
+                  sx={{
+                    fontSize: 1,
+                    color: "rgba(248, 251, 255, 0.7)",
+                    lineHeight: "1.4",
+                  }}
+                >
+                  Your Slack email must match the email on your workshop to see
+                  it here. You&apos;re signed in as{" "}
+                  <Text sx={{ color: "text", fontWeight: "bold" }}>
+                    {session.user.email}
+                  </Text>
+                  .
+                </Text>
+              </Box>
+            )}
             {loading && (
               <Grid
                 gap={3}
@@ -179,8 +210,8 @@ export default function Home() {
                     setError("");
                     setLoading(true);
                     fetch(
-                      `/api/workshops/by-owner?SlackID=${encodeURIComponent(
-                        session.user.SlackID,
+                      `/api/workshops/by-owner?email=${encodeURIComponent(
+                        session.user.email,
                       )}`,
                     )
                       .then((res) => res.json())
