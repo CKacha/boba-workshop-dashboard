@@ -75,17 +75,17 @@ export default function GrantRequestModal({
           bg: "background",
           borderRadius: 8,
           p: 4,
-          maxWidth: 500,
+          maxWidth: 380,
           width: "100%",
           border: "1px solid rgba(255, 255, 255, 0.1)",
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <Text sx={{ fontSize: 4, fontWeight: "bold", mb: 1 }}>
+        <Text sx={{ fontSize: 3, fontWeight: "bold", display: "block", mb: 2 }}>
           Request Grant
         </Text>
-        <Text sx={{ fontSize: 1, color: "rgba(248, 251, 255, 0.6)", mb: 3 }}>
-          Club: {clubName}
+        <Text sx={{ fontSize: 1, color: "rgba(248, 251, 255, 0.6)", display: "block", mb: 3 }}>
+          {clubName}
         </Text>
 
         <Box
@@ -94,18 +94,14 @@ export default function GrantRequestModal({
             border: "1px solid rgba(51, 214, 166, 0.3)",
             borderRadius: 4,
             p: 3,
-            mb: 4,
+            mb: 3,
           }}
         >
-          <Text sx={{ fontSize: 1, color: "rgba(248, 251, 255, 0.6)", mb: 1 }}>
-            Total Grant Amount
+          <Text sx={{ fontSize: 1, color: "#33D6A6", fontWeight: 600 }}>
+            Total Grant Amount: ${totalAmount}
           </Text>
-          <Text sx={{ fontSize: 6, fontWeight: "bold", color: "#33D6A6" }}>
-            ${totalAmount}
-          </Text>
-          <Text sx={{ fontSize: 1, color: "rgba(248, 251, 255, 0.5)", mt: 1 }}>
-            {approvedCount} approved submission{approvedCount !== 1 ? "s" : ""}{" "}
-            × $5 each
+          <Text sx={{ fontSize: 0, color: "rgba(248, 251, 255, 0.5)", mt: 1, display: "block" }}>
+            {approvedCount} approved submission{approvedCount !== 1 ? "s" : ""} × $5 each
           </Text>
         </Box>
 
@@ -128,7 +124,7 @@ export default function GrantRequestModal({
                 px: 3,
                 py: 2,
                 color: "text",
-                fontSize: 2,
+                fontSize: 1,
                 "&:focus": {
                   outline: "none",
                   borderColor: "#EC3750",
@@ -156,7 +152,7 @@ export default function GrantRequestModal({
                 px: 3,
                 py: 2,
                 color: "text",
-                fontSize: 2,
+                fontSize: 1,
                 "&:focus": {
                   outline: "none",
                   borderColor: "#EC3750",

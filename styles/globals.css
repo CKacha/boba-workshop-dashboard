@@ -20,6 +20,18 @@ img {
   display: block;
 }
 
+input,
+select,
+textarea {
+  background-color: #0a0f1c;
+  color: #f8fbff;
+}
+
+select option {
+  background-color: #0a0f1c;
+  color: #f8fbff;
+}
+
 /* Shadcn-style table primitives */
 .shad-table {
   width: 100%;

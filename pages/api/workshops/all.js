@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
-
+import { airtableUrl, airtableHeaders } from "../../../lib/airtable";
 export default async function handler(req, res) {
   // Check authentication
   const session = await getServerSession(req, res, authOptions);
@@ -16,24 +16,17 @@ export default async function handler(req, res) {
     return res.status(403).json({ error: "Forbidden: Admin access required" });
   }
 
-  const key = process.env.AIRBRIDGE_API_KEY;
-  const airbridgeBase = process.env.DEV === "true" ? "http://localhost:5000" : "https://airbridge.hackclub.com";
-  if (!key) return res.status(500).json({ error: "Missing AIRBRIDGE_API_KEY" });
-
   try {
-    const select = encodeURIComponent(
-      JSON.stringify({
-        fields: ["Club Names", "Status", "Organizer Name", "Slack ID"],
-      })
-    );
-    const url = `${airbridgeBase}/v0.2/Boba%20Club%20Dashboard/Club%20Workshops?select=${select}&authKey=${key}`;
+    const url = airtableUrl("Club Workshops", {
+      fields: ["Club Names", "Status", "Organizer Name", "Slack ID"],
+    });
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 8000);
     let resp;
     try {
       resp = await fetch(url, {
         signal: controller.signal,
-        headers: { Accept: "application/json" },
+        headers: airtableHeaders(),
       });
     } catch (err) {
       clearTimeout(timeout);

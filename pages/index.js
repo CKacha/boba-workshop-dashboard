@@ -88,7 +88,7 @@ export default function Home() {
         if (a.clubName && !b.clubName) return -1;
         return (a.clubName || "").localeCompare(b.clubName || "");
       } else if (sortBy === "status") {
-        const statusOrder = { Pending: 1, Approved: 2, Rejected: 3 };
+        const statusOrder = { Active: 1, Deactivated: 2 };
         return (statusOrder[a.status] || 999) - (statusOrder[b.status] || 999);
       }
       return 0;
@@ -131,31 +131,21 @@ export default function Home() {
             {!isAdmin && (
               <Box
                 sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 2,
                   mb: 4,
                   px: 3,
                   py: 2,
-                  borderRadius: 4,
-                  bg: "rgba(51, 142, 218, 0.1)",
-                  border: "1px solid rgba(51, 142, 218, 0.3)",
+                  borderRadius: 6,
+                  bg: "rgba(255,255,255,0.04)",
+                  border: "1px solid",
+                  borderColor: "border",
                 }}
               >
-                <Text sx={{ fontSize: 2 }}>ℹ️</Text>
-                <Text
-                  sx={{
-                    fontSize: 1,
-                    color: "rgba(248, 251, 255, 0.7)",
-                    lineHeight: "1.4",
-                  }}
-                >
-                  Your Slack email must match the email on your workshop to see
-                  it here. You&apos;re signed in as{" "}
-                  <Text sx={{ color: "text", fontWeight: "bold" }}>
-                    {session.user.email}
+                <Text sx={{ fontSize: 1, color: "rgba(248,251,255,0.5)" }}>
+                  Showing workshops linked to{" "}
+                  <Text as="span" sx={{ color: "text", fontWeight: 600 }}>
+                    {session.user.email || session.user.name}
                   </Text>
-                  .
+                  . If your workshop is missing, contact a Boba organizer.
                 </Text>
               </Box>
             )}
@@ -275,64 +265,29 @@ export default function Home() {
                   }}
                 >
                   <Box sx={{ display: "flex", alignItems: "baseline", gap: 2 }}>
-                    <Text
-                      sx={{
-                        fontSize: 1,
-                        color: "rgba(248, 251, 255, 0.5)",
-                        textTransform: "uppercase",
-                        letterSpacing: "0.1em",
-                      }}
-                    >
-                      Total Workshops
-                    </Text>
-                    <Text
-                      sx={{ fontSize: 6, fontWeight: "bold", color: "text" }}
-                    >
+                    <Text sx={{ fontSize: 4, fontWeight: 700, color: "text" }}>
                       {stats.total}
                     </Text>
-                  </Box>
-                  <Box
-                    sx={{ width: "1px", bg: "rgba(255,255,255,0.1)", mx: 2 }}
-                  />
-                  <Box sx={{ display: "flex", alignItems: "baseline", gap: 2 }}>
-                    <Text
-                      sx={{
-                        fontSize: 1,
-                        color: "#33D6A6",
-                        textTransform: "uppercase",
-                        letterSpacing: "0.1em",
-                      }}
-                    >
-                      Active
+                    <Text sx={{ fontSize: 1, color: "rgba(248,251,255,0.45)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                      Total
                     </Text>
-                    <Text
-                      sx={{ fontSize: 6, fontWeight: "bold", color: "#33D6A6" }}
-                    >
+                  </Box>
+                  <Box sx={{ width: "1px", bg: "border", mx: 2 }} />
+                  <Box sx={{ display: "flex", alignItems: "baseline", gap: 2 }}>
+                    <Text sx={{ fontSize: 4, fontWeight: 700, color: "secondary" }}>
                       {stats.active}
                     </Text>
-                  </Box>
-                  <Box
-                    sx={{ width: "1px", bg: "rgba(255,255,255,0.1)", mx: 2 }}
-                  />
-                  <Box sx={{ display: "flex", alignItems: "baseline", gap: 2 }}>
-                    <Text
-                      sx={{
-                        fontSize: 1,
-                        color: "rgba(248, 251, 255, 0.5)",
-                        textTransform: "uppercase",
-                        letterSpacing: "0.1em",
-                      }}
-                    >
-                      Deactivated
+                    <Text sx={{ fontSize: 1, color: "secondary", opacity: 0.7, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                      Active
                     </Text>
-                    <Text
-                      sx={{
-                        fontSize: 6,
-                        fontWeight: "bold",
-                        color: "rgba(248, 251, 255, 0.5)",
-                      }}
-                    >
+                  </Box>
+                  <Box sx={{ width: "1px", bg: "border", mx: 2 }} />
+                  <Box sx={{ display: "flex", alignItems: "baseline", gap: 2 }}>
+                    <Text sx={{ fontSize: 4, fontWeight: 700, color: "rgba(248,251,255,0.4)" }}>
                       {stats.deactivated}
+                    </Text>
+                    <Text sx={{ fontSize: 1, color: "rgba(248,251,255,0.35)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                      Deactivated
                     </Text>
                   </Box>
                 </Box>
@@ -350,101 +305,39 @@ export default function Home() {
                       alignItems: "baseline",
                     }}
                   >
-                    <Box
-                      sx={{ display: "flex", alignItems: "baseline", gap: 2 }}
-                    >
-                      <Text
-                        sx={{
-                          fontSize: 1,
-                          color: "rgba(248, 251, 255, 0.5)",
-                          textTransform: "uppercase",
-                          letterSpacing: "0.1em",
-                        }}
-                      >
-                        Submissions
-                      </Text>
-                      <Text
-                        sx={{ fontSize: 6, fontWeight: "bold", color: "text" }}
-                      >
+                    <Box sx={{ display: "flex", alignItems: "baseline", gap: 2 }}>
+                      <Text sx={{ fontSize: 4, fontWeight: 700, color: "text" }}>
                         {adminStats.totalSubmissions}
                       </Text>
-                    </Box>
-                    <Box
-                      sx={{ width: "1px", bg: "rgba(255,255,255,0.1)", mx: 2 }}
-                    />
-                    <Box
-                      sx={{ display: "flex", alignItems: "baseline", gap: 2 }}
-                    >
-                      <Text
-                        sx={{
-                          fontSize: 1,
-                          color: "#33D6A6",
-                          textTransform: "uppercase",
-                          letterSpacing: "0.1em",
-                        }}
-                      >
-                        Approved
+                      <Text sx={{ fontSize: 1, color: "rgba(248,251,255,0.45)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                        Submissions
                       </Text>
-                      <Text
-                        sx={{
-                          fontSize: 6,
-                          fontWeight: "bold",
-                          color: "#33D6A6",
-                        }}
-                      >
+                    </Box>
+                    <Box sx={{ width: "1px", bg: "border", mx: 2 }} />
+                    <Box sx={{ display: "flex", alignItems: "baseline", gap: 2 }}>
+                      <Text sx={{ fontSize: 4, fontWeight: 700, color: "secondary" }}>
                         {adminStats.approvedSubmissions}
                       </Text>
-                    </Box>
-                    <Box
-                      sx={{ width: "1px", bg: "rgba(255,255,255,0.1)", mx: 2 }}
-                    />
-                    <Box
-                      sx={{ display: "flex", alignItems: "baseline", gap: 2 }}
-                    >
-                      <Text
-                        sx={{
-                          fontSize: 1,
-                          color: "#EC3750",
-                          textTransform: "uppercase",
-                          letterSpacing: "0.1em",
-                        }}
-                      >
-                        Given Out
+                      <Text sx={{ fontSize: 1, color: "secondary", opacity: 0.7, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                        Approved
                       </Text>
-                      <Text
-                        sx={{
-                          fontSize: 6,
-                          fontWeight: "bold",
-                          color: "#EC3750",
-                        }}
-                      >
+                    </Box>
+                    <Box sx={{ width: "1px", bg: "border", mx: 2 }} />
+                    <Box sx={{ display: "flex", alignItems: "baseline", gap: 2 }}>
+                      <Text sx={{ fontSize: 4, fontWeight: 700, color: "primary" }}>
                         ${adminStats.moneyGivenOut}
                       </Text>
-                    </Box>
-                    <Box
-                      sx={{ width: "1px", bg: "rgba(255,255,255,0.1)", mx: 2 }}
-                    />
-                    <Box
-                      sx={{ display: "flex", alignItems: "baseline", gap: 2 }}
-                    >
-                      <Text
-                        sx={{
-                          fontSize: 1,
-                          color: "#338eda",
-                          textTransform: "uppercase",
-                          letterSpacing: "0.1em",
-                        }}
-                      >
-                        Schools Reached
+                      <Text sx={{ fontSize: 1, color: "primary", opacity: 0.7, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                        Given Out
                       </Text>
-                      <Text
-                        sx={{
-                          fontSize: 6,
-                          fontWeight: "bold",
-                          color: "#338eda",
-                        }}
-                      >
+                    </Box>
+                    <Box sx={{ width: "1px", bg: "border", mx: 2 }} />
+                    <Box sx={{ display: "flex", alignItems: "baseline", gap: 2 }}>
+                      <Text sx={{ fontSize: 4, fontWeight: 700, color: "accent" }}>
                         {adminStats.schoolsReached}
+                      </Text>
+                      <Text sx={{ fontSize: 1, color: "accent", opacity: 0.7, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                        Schools
                       </Text>
                     </Box>
                     <Box
@@ -503,8 +396,9 @@ export default function Home() {
                     onChange={(e) => setSearchQuery(e.target.value)}
                     sx={{
                       flex: 1,
-                      bg: "transparent",
-                      border: "1px solid rgba(255, 255, 255, 0.15)",
+                      bg: "elevated",
+                      border: "1px solid",
+                      borderColor: "border",
                       borderRadius: 4,
                       px: 3,
                       py: 2,
@@ -512,7 +406,7 @@ export default function Home() {
                       fontSize: 2,
                       "&:focus": {
                         outline: "none",
-                        borderColor: "#EC3750",
+                        borderColor: "primary",
                       },
                       "&::placeholder": {
                         color: "rgba(248, 251, 255, 0.3)",
@@ -523,8 +417,9 @@ export default function Home() {
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
                     sx={{
-                      bg: "transparent",
-                      border: "1px solid rgba(255, 255, 255, 0.15)",
+                      bg: "elevated",
+                      border: "1px solid",
+                      borderColor: "border",
                       borderRadius: 4,
                       px: 3,
                       py: 2,
@@ -533,9 +428,9 @@ export default function Home() {
                       cursor: "pointer",
                       "&:focus": {
                         outline: "none",
-                        borderColor: "#EC3750",
+                        borderColor: "primary",
                       },
-                      minWidth: 120,
+                      minWidth: 110,
                     }}
                   >
                     <option value="All">All</option>
@@ -546,8 +441,9 @@ export default function Home() {
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
                     sx={{
-                      bg: "transparent",
-                      border: "1px solid rgba(255, 255, 255, 0.15)",
+                      bg: "elevated",
+                      border: "1px solid",
+                      borderColor: "border",
                       borderRadius: 4,
                       px: 3,
                       py: 2,
@@ -556,9 +452,9 @@ export default function Home() {
                       cursor: "pointer",
                       "&:focus": {
                         outline: "none",
-                        borderColor: "#EC3750",
+                        borderColor: "primary",
                       },
-                      minWidth: 160,
+                      minWidth: 130,
                     }}
                   >
                     <option value="code">By Name</option>

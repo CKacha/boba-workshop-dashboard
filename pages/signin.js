@@ -1,4 +1,4 @@
-import { Box, Alert, Button } from "theme-ui";
+import { Box, Button, Text, Heading } from "theme-ui";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
@@ -8,54 +8,56 @@ export default function Login() {
   const { data: session } = useSession();
 
   useEffect(() => {
-    if (session) {
-      router.push("/");
-    }
+    if (session) router.push("/");
   }, [session, router]);
 
   return (
-    <>
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        width: "100vw",
+        height: "100vh",
+        bg: "background",
+      }}
+    >
       <Box
         sx={{
+          width: ["90%", "400px"],
+          p: 5,
+          bg: "rgba(255,255,255,0.04)",
+          border: "1px solid",
+          borderColor: "border",
+          borderRadius: 12,
           display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          flexDirection: "row",
-          width: "100vw",
-          height: "100vh",
+          flexDirection: "column",
+          gap: 3,
         }}
       >
-        <Alert
-          variant="warning"
+        <Heading as="h1" sx={{ fontSize: 4, color: "primary", mb: 1 }}>
+          Boba Workshop Dashboard
+        </Heading>
+        <Text sx={{ fontSize: 1, color: "rgba(248,251,255,0.5)", mb: 2 }}>
+          Sign in to manage your Hack Club Boba workshop.
+        </Text>
+
+        <Button
+          onClick={() => signIn("hackclub", { callbackUrl: "/" })}
           sx={{
-            width: ["80%", "80%", "80%", "80%"],
-            maxWidth: "600px",
-            border: "2px solid",
-            flexDirection: "column",
-            alignItems: "left",
-            padding: 4,
-            textAlign: "center",
-            gap: 3,
+            bg: "primary",
+            color: "white",
+            fontWeight: 700,
+            borderRadius: 8,
+            py: 3,
+            cursor: "pointer",
+            border: "none",
+            fontSize: 2,
           }}
         >
-          <p>
-            Hello there! Please Sign-in to your Hack Club account to see your
-            workshops.
-          </p>
-          <Button
-            onClick={() => signIn("hackclub")}
-            sx={{
-              px: "32px",
-              mt: "16px",
-              width: "fit-content",
-              textAlign: "center",
-              background: "highlight",
-            }}
-          >
-            Click to Sign In
-          </Button>
-        </Alert>
+          Sign in with Hack Club
+        </Button>
       </Box>
-    </>
+    </Box>
   );
 }

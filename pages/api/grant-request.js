@@ -1,5 +1,6 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./auth/[...nextauth]";
+import { airtableUrl, airtableHeaders } from "../../lib/airtable";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -22,13 +23,6 @@ export default async function handler(req, res) {
     additionalInfo,
   } = req.body;
   const slackWebhookUrl = process.env.SLACK_WEBHOOK_URL;
-  const key = process.env.AIRBRIDGE_API_KEY;
-  const airbridgeBase =
-    process.env.DEV === "true"
-      ? "http://localhost:5000"
-      : "https://airbridge.hackclub.com";
-
-  if (!key) return res.status(500).json({ error: "Missing AIRBRIDGE_API_KEY" });
 
   // Validate required fields
   if (
@@ -48,19 +42,16 @@ export default async function handler(req, res) {
     const isAdmin = adminSlackIds.includes(session.user.SlackID);
     if (!isAdmin) {
       const sanitizedClub = String(clubName).replace(/'/g, "\\'");
-      const select = encodeURIComponent(
-        JSON.stringify({
-          filterByFormula: `AND({Club Names} = '${sanitizedClub}', NOT({Status} = 'Rejected'))`,
-          fields: ["Club Names", "Slack ID"],
-        }),
-      );
-      const clubUrl = `${airbridgeBase}/v0.2/Boba%20Club%20Dashboard/Club%20Workshops?select=${select}&authKey=${key}`;
+      const clubUrl = airtableUrl("Club Workshops", {
+        filterByFormula: `AND({Club Names} = '${sanitizedClub}', NOT({Status} = 'Rejected'))`,
+        fields: ["Club Names", "Slack ID", "Email"],
+      });
       let clubResp;
       try {
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), 8000);
         try {
-          clubResp = await fetch(clubUrl, { signal: controller.signal });
+          clubResp = await fetch(clubUrl, { signal: controller.signal, headers: airtableHeaders() });
         } finally {
           clearTimeout(timer);
         }
@@ -74,7 +65,11 @@ export default async function handler(req, res) {
         ? clubJson
         : clubJson?.records || clubJson?.data || [];
       const clubSlackId = clubRecords[0]?.fields?.["Slack ID"];
-      if (!clubSlackId || session.user.SlackID !== clubSlackId) {
+      const clubEmail = (clubRecords[0]?.fields?.["Email"] || "").trim().toLowerCase();
+      const sessionEmail = (session.user.email || "").trim().toLowerCase();
+      const slackMatches = session.user.SlackID && session.user.SlackID === clubSlackId;
+      const emailMatches = sessionEmail && sessionEmail === clubEmail;
+      if (!slackMatches && !emailMatches) {
         return res
           .status(403)
           .json({ error: "Forbidden: Not the organizer for this club" });
@@ -230,7 +225,7 @@ export default async function handler(req, res) {
       organizerName,
       organizerEmail,
       amount,
-      reason,
+      additionalInfo,
     });
     return res.status(200).json({
       success: true,
