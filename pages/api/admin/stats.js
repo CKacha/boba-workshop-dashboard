@@ -1,9 +1,9 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
-
+import { airtableUrl, airtableHeaders } from "../../../lib/airtable";
 const PAGE_TIMEOUT_MS = 30000;
 
-async function fetchAllPages(baseUrl) {
+async function fetchAllPages(baseUrl, headers = {}) {
   const records = [];
   let offset = null;
 
@@ -16,7 +16,7 @@ async function fetchAllPages(baseUrl) {
     try {
       resp = await fetch(url, {
         signal: controller.signal,
-        headers: { Accept: "application/json" },
+        headers,
       });
     } catch (err) {
       clearTimeout(timer);
@@ -54,23 +54,13 @@ export default async function handler(req, res) {
     return res.status(403).json({ error: "Forbidden" });
   }
 
-  const key = process.env.AIRBRIDGE_API_KEY;
-  const base = process.env.DEV === "true" ? "http://localhost:5000" : "https://airbridge.hackclub.com";
-  if (!key) return res.status(500).json({ error: "Missing AIRBRIDGE_API_KEY" });
-
   try {
-    const websiteSelect = encodeURIComponent(
-      JSON.stringify({
-        fields: [
-          "Project Status",
-          "club_name (from Active Clubs) (from Club)",
-        ],
-        pageSize: 100,
-      })
-    );
-    const websiteUrl = `${base}/v0.2/Boba%20Club%20Dashboard/Websites?select=${websiteSelect}&authKey=${key}`;
+    const websiteUrl = airtableUrl("Websites", {
+      fields: ["Project Status", "club_name (from Active Clubs) (from Club)"],
+      pageSize: 100,
+    });
 
-    const records = await fetchAllPages(websiteUrl);
+    const records = await fetchAllPages(websiteUrl, airtableHeaders());
     console.log(`[admin/stats] fetched ${records.length} website records`);
 
     let totalSubmissions = 0;

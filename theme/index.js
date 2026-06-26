@@ -15,94 +15,52 @@ const theme = {
     accent: "#5BC0EB",
     muted: "#111527",
     elevated: "#0A0F1C",
-    border: "rgba(248, 251, 255, 0.12)",
+    border: "rgba(248, 251, 255, 0.1)",
     highlight: "#FFC857",
-    backdrop:
-      "linear-gradient(135deg, rgba(10, 15, 28, 0.9), rgba(22, 27, 45, 0.85))",
   },
   fonts: {
     ...hackClubTheme.fonts,
     heading:
-      "'Space Grotesk', 'Phantom Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-    body: "'Space Grotesk', 'Phantom Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+      "'Space Grotesk', system-ui, -apple-system, sans-serif",
+    body: "'Space Grotesk', system-ui, -apple-system, sans-serif",
     mono: "'Space Mono', 'SFMono-Regular', Menlo, monospace",
   },
   radii: {
     ...hackClubTheme.radii,
-    soft: 18,
+    soft: 12,
     pill: 999,
-  },
-  layout: {
-    ...hackClubTheme.layout,
-    container: {
-      maxWidth: "1120px",
-      px: [3, 4],
-      py: [4, 5],
-    },
-  },
-  cards: {
-    translucent: {
-      bg: "rgba(255, 255, 255, 0.03)",
-      border: "1px solid",
-      borderColor: "border",
-      boxShadow: "0 30px 70px rgba(0, 0, 0, 0.35)",
-      borderRadius: "soft",
-      backdropFilter: "blur(24px)",
-    },
   },
   buttons: {
     primary: {
       bg: "primary",
-      color: "background",
-      borderRadius: "pill",
+      color: "white",
+      borderRadius: 8,
       px: 4,
       py: 2,
       fontWeight: 600,
-      transition: "transform 150ms ease, box-shadow 150ms ease",
-      boxShadow: "0 12px 30px rgba(236, 55, 80, 0.35)",
-      ":hover": {
-        transform: "translateY(-2px)",
-        boxShadow: "0 18px 36px rgba(236, 55, 80, 0.45)",
-      },
+      cursor: "pointer",
+      border: "none",
+      "&:hover": { opacity: 0.9 },
     },
     secondary: {
-      variant: "buttons.primary",
       bg: "transparent",
       color: "text",
+      borderRadius: 8,
+      px: 4,
+      py: 2,
+      fontWeight: 600,
+      cursor: "pointer",
       border: "1px solid",
       borderColor: "border",
-      boxShadow: "none",
-    },
-  },
-  badges: {
-    pill: {
-      borderRadius: "pill",
-      px: 3,
-      py: 1,
-      fontSize: 1,
-      bg: "rgba(255, 255, 255, 0.08)",
+      "&:hover": { bg: "rgba(255,255,255,0.05)" },
     },
   },
   styles: {
     ...hackClubTheme.styles,
     root: {
-      fontFamily:
-        "'Space Grotesk', 'Phantom Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+      fontFamily: "'Space Grotesk', system-ui, -apple-system, sans-serif",
       backgroundColor: "background",
       color: "text",
-    },
-    h1: {
-      fontSize: [5, 6],
-      lineHeight: 1.1,
-      letterSpacing: "-0.02em",
-    },
-    h2: {
-      fontSize: [4, 5],
-      lineHeight: 1.2,
-    },
-    p: {
-      color: "rgba(248, 251, 255, 0.78)",
-      lineHeight: 1.6,
     },
   },
 };

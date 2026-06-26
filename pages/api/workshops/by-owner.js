@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
-
+import { airtableUrl, airtableHeaders } from "../../../lib/airtable";
 export default async function handler(req, res) {
   // Check authentication
   const session = await getServerSession(req, res, authOptions);
@@ -9,9 +9,6 @@ export default async function handler(req, res) {
   }
 
   const { email } = req.query;
-  const key = process.env.AIRBRIDGE_API_KEY;
-  const airbridgeBase = process.env.DEV === "true" ? "http://localhost:5000" : "https://airbridge.hackclub.com";
-  if (!key) return res.status(500).json({ error: "Missing AIRBRIDGE_API_KEY" });
   if (!email) return res.status(400).json({ error: "Missing email" });
 
   // Verify user can only access their own data (unless admin).
@@ -31,21 +28,17 @@ export default async function handler(req, res) {
   const sanitizedEmail = requestedEmail.replace(/'/g, "\\'");
 
   try {
-    const select = encodeURIComponent(
-      JSON.stringify({
-        fields: ["Club Names", "Status", "Organizer Name"],
-        filterByFormula: `LOWER({Email}) = '${sanitizedEmail}'`,
-      })
-    );
-    const base = "Boba%20Club%20Dashboard";
-    const url = `${airbridgeBase}/v0.2/${base}/Club%20Workshops?select=${select}&authKey=${key}`;
+    const url = airtableUrl("Club Workshops", {
+      fields: ["Club Names", "Status", "Organizer Name", "Email"],
+      filterByFormula: `LOWER({Email}) = '${sanitizedEmail}'`,
+    });
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 8000);
     let resp;
     try {
       resp = await fetch(url, {
         signal: controller.signal,
-        headers: { Accept: "application/json" },
+        headers: airtableHeaders(),
       });
     } catch (err) {
       clearTimeout(timeout);

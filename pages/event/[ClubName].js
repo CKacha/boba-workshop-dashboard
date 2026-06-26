@@ -299,8 +299,9 @@ export default function Event() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 sx={{
                   flex: 1,
-                  bg: "transparent",
-                  border: "1px solid rgba(255, 255, 255, 0.15)",
+                  bg: "elevated",
+                  border: "1px solid",
+                  borderColor: "border",
                   borderRadius: 4,
                   px: 3,
                   py: 2,
@@ -308,7 +309,7 @@ export default function Event() {
                   fontSize: 2,
                   "&:focus": {
                     outline: "none",
-                    borderColor: "#EC3750",
+                    borderColor: "primary",
                   },
                   "&::placeholder": {
                     color: "rgba(248, 251, 255, 0.3)",
@@ -319,8 +320,9 @@ export default function Event() {
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 sx={{
-                  bg: "transparent",
-                  border: "1px solid rgba(255, 255, 255, 0.15)",
+                  bg: "elevated",
+                  border: "1px solid",
+                  borderColor: "border",
                   borderRadius: 4,
                   px: 3,
                   py: 2,
@@ -329,7 +331,7 @@ export default function Event() {
                   cursor: "pointer",
                   "&:focus": {
                     outline: "none",
-                    borderColor: "#EC3750",
+                    borderColor: "primary",
                   },
                 }}
               >

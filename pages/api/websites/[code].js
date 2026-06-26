@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]";
-
+import { airtableUrl, airtableHeaders } from "../../../lib/airtable";
 const REQUEST_TIMEOUT_MS = 40000; // 40s timeout for slow upstreams
 
 export default async function handler(req, res) {
@@ -12,37 +12,23 @@ export default async function handler(req, res) {
   }
 
   const { code } = req.query;
-  const key = process.env.AIRBRIDGE_API_KEY;
-  const airbridgeBase =
-    process.env.DEV === "true"
-      ? "http://localhost:5000"
-      : "https://airbridge.hackclub.com";
-
-  if (!key) {
-    return res.status(500).json({ error: "Missing AIRBRIDGE_API_KEY" });
-  }
   if (!code) {
     return res.status(400).json({ error: "Missing event code" });
   }
   try {
-    const base = "Boba%20Club%20Dashboard";
-
     const sanitizedCode = String(code).replace(/'/g, "\\'");
 
-    const eventSelect = encodeURIComponent(
-      JSON.stringify({
-        filterByFormula: `AND({Club Names} = '${sanitizedCode}', NOT({Status} = 'Rejected'))`,
-        fields: ["Club Names", "Status", "Slack ID"],
-      }),
-    );
-    const eventUrl = `${airbridgeBase}/v0.2/${base}/Club%20Workshops?select=${eventSelect}&authKey=${key}`;
+    const eventUrl = airtableUrl("Club Workshops", {
+      filterByFormula: `AND({Club Names} = '${sanitizedCode}', NOT({Status} = 'Rejected'))`,
+      fields: ["Club Names", "Status", "Slack ID", "Email"],
+    });
 
     let eventResp;
     try {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
       try {
-        eventResp = await fetch(eventUrl, { signal: controller.signal });
+        eventResp = await fetch(eventUrl, { signal: controller.signal, headers: airtableHeaders() });
       } finally {
         clearTimeout(timer);
       }
@@ -73,28 +59,28 @@ export default async function handler(req, res) {
       process.env.NEXT_PUBLIC_ADMIN_SLACK_IDS?.split(",") || [];
     const isAdmin = adminSlackIds.includes(session.user.SlackID);
     const eventSlackId = eventRecords[0]?.fields?.["Slack ID"];
-    if (!isAdmin && session.user.SlackID !== eventSlackId) {
+    const eventEmail = (eventRecords[0]?.fields?.["Email"] || "").trim().toLowerCase();
+    const sessionEmail = (session.user.email || "").trim().toLowerCase();
+    const slackMatches = session.user.SlackID && session.user.SlackID === eventSlackId;
+    const emailMatches = sessionEmail && sessionEmail === eventEmail;
+    if (!isAdmin && !slackMatches && !emailMatches) {
       return res
         .status(403)
         .json({ error: "Forbidden: Not the organizer for this club" });
     }
 
-    const select = encodeURIComponent(
-      JSON.stringify({
-        filterByFormula: `{club_name (from Active Clubs) (from Club)} = '${sanitizedCode}'`,
-        fields: [
-          "Email",
-          "First Name",
-          "Last Name",
-          "Project Status",
-          "club_name (from Active Clubs) (from Club)",
-          "Playable URL",
-          "Rejection Reason",
-        ],
-      }),
-    );
-
-    const url = `${airbridgeBase}/v0.2/${base}/Websites?select=${select}&authKey=${key}`;
+    const url = airtableUrl("Websites", {
+      filterByFormula: `{club_name (from Active Clubs) (from Club)} = '${sanitizedCode}'`,
+      fields: [
+        "Email",
+        "First Name",
+        "Last Name",
+        "Project Status",
+        "club_name (from Active Clubs) (from Club)",
+        "Playable URL",
+        "Rejection Reason",
+      ],
+    });
 
     let resp;
     try {
@@ -107,7 +93,7 @@ export default async function handler(req, res) {
       try {
         resp = await fetch(url, {
           signal: controller.signal,
-          headers: { Accept: "application/json" },
+          headers: airtableHeaders(),
         });
       } finally {
         clearTimeout(timer);

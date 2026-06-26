@@ -1,72 +1,56 @@
 import { Box, Text } from "theme-ui";
 import { useRouter } from "next/router";
 
-export default function WorkshopCard(props) {
-  const { ClubName, EventStatus, OrganizerName, showOrganizer } = props;
+const STATUS_STYLES = {
+  Active: { bg: "#33D6A6", color: "#000" },
+  Deactivated: { bg: "rgba(255,255,255,0.1)", color: "rgba(248,251,255,0.6)" },
+};
+
+export default function WorkshopCard({ ClubName, EventStatus, OrganizerName, showOrganizer }) {
   const router = useRouter();
-
-  const statusColors = {
-    Active: "#33D6A6",
-    Deactivated: "rgba(255,255,255,0.1)",
-  };
-
-  const handleNavigate = () => {
-    const target = `/event/${encodeURIComponent(ClubName || "")}`;
-    router.push(target);
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      handleNavigate();
-    }
-  };
+  const status = STATUS_STYLES[EventStatus] || STATUS_STYLES.Deactivated;
 
   return (
     <Box
+      role="button"
+      tabIndex={0}
+      aria-label={`View workshop ${ClubName}`}
+      onClick={() => router.push(`/event/${encodeURIComponent(ClubName || "")}`)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          router.push(`/event/${encodeURIComponent(ClubName || "")}`);
+        }
+      }}
       sx={{
-        minHeight: 140,
+        minHeight: 120,
         width: "100%",
-        bg: "rgba(20, 25, 40, 0.6)",
-        border: "2px solid",
-        borderColor: statusColors[EventStatus] || "rgba(255,255,255,0.1)",
+        bg: "rgba(255,255,255,0.03)",
+        border: "1px solid",
+        borderColor: "border",
         borderRadius: 8,
         p: 4,
         display: "flex",
         flexDirection: "column",
+        justifyContent: "space-between",
         gap: 3,
         cursor: "pointer",
-        transition: "border-color 150ms",
+        transition: "border-color 150ms, background 150ms",
         "&:hover": {
-          borderColor: statusColors[EventStatus] || "#EC3750",
+          borderColor: "primary",
+          bg: "rgba(255,255,255,0.05)",
         },
       }}
-      onClick={handleNavigate}
-      onKeyDown={handleKeyDown}
-      role="button"
-      tabIndex={0}
-      aria-label={`View workshop ${ClubName}`}
     >
       <Box>
         <Text
-          sx={{
-            fontSize: 4,
-            fontWeight: "bold",
-            color: "text",
-            letterSpacing: "-0.02em",
-          }}
+          sx={{ fontSize: 3, fontWeight: 700, color: "text", letterSpacing: "-0.01em" }}
         >
           {ClubName}
         </Text>
         {showOrganizer && OrganizerName && (
-          <Text
-            sx={{
-              fontSize: 1,
-              color: "rgba(248, 251, 255, 0.5)",
-              mt: 1,
-            }}
-          >
-            by {OrganizerName}
+          <Text sx={{ fontSize: 1, color: "rgba(248,251,255,0.45)", display: "block", mt: 2 }}>
+            {OrganizerName}
           </Text>
         )}
       </Box>
@@ -74,15 +58,15 @@ export default function WorkshopCard(props) {
         sx={{
           display: "inline-flex",
           alignSelf: "flex-start",
-          px: 3,
-          py: 1,
-          bg: statusColors[EventStatus] || "rgba(255,255,255,0.1)",
-          color: "#000",
-          fontSize: 1,
-          fontWeight: "bold",
+          px: 2,
+          py: "3px",
+          bg: status.bg,
+          color: status.color,
+          fontSize: 0,
+          fontWeight: 700,
           borderRadius: 4,
           textTransform: "uppercase",
-          letterSpacing: "0.05em",
+          letterSpacing: "0.06em",
         }}
       >
         {EventStatus}
