@@ -51,6 +51,11 @@ export default function Home() {
         if (userIsAdmin) {
           res = await fetch(`/api/workshops/all`);
         } else {
+          if (!session.user.email) {
+            setError("No email address found on your account. Contact a Boba organizer.");
+            setLoading(false);
+            return;
+          }
           res = await fetch(
             `/api/workshops/by-owner?email=${encodeURIComponent(
               session.user.email,

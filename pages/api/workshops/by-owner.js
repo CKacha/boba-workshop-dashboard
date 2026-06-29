@@ -18,7 +18,7 @@ export default async function handler(req, res) {
   const isAdmin = adminSlackIds.includes(session.user.SlackID);
 
   const requestedEmail = String(email).trim().toLowerCase();
-  const sessionEmail = String(session.user.email || "").trim().toLowerCase();
+  const sessionEmail = String(session.user.email ?? "").trim().toLowerCase();
 
   if (!isAdmin && sessionEmail !== requestedEmail) {
     return res.status(403).json({ error: "Forbidden: Can only access your own data" });
