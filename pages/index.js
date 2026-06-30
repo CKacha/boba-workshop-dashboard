@@ -1,6 +1,6 @@
 import { Box, Grid, Text, Input, Select, Button } from "theme-ui";
 import Layout from "../components/Layout";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import WorkshopCard from "../components/workshopCard";
@@ -27,10 +27,42 @@ export default function Home() {
     }
   }, [status, router]);
 
+  const fetchEvents = useCallback(async () => {
+    if (status !== "authenticated") return;
+    const adminSlackIds =
+      process.env.NEXT_PUBLIC_ADMIN_SLACK_IDS?.split(",") || [];
+    const userIsAdmin = adminSlackIds.includes(session?.user?.SlackID);
+    setLoading(true);
+    setError("");
+    try {
+      let res;
+      if (userIsAdmin) {
+        res = await fetch(`/api/workshops/all`);
+      } else {
+        const emailToUse = session?.user?.email;
+        if (!emailToUse) {
+          setError("No email address found on your account. Contact a Boba organizer.");
+          setLoading(false);
+          return;
+        }
+        res = await fetch(
+          `/api/workshops/by-owner?email=${encodeURIComponent(emailToUse)}`,
+        );
+      }
+      const json = await res.json();
+      if (!res.ok)
+        throw new Error(json?.error || `Request failed: ${res.status}`);
+      setEvents(json.records || []);
+    } catch (err) {
+      setError(err?.message || "Failed to load your workshops");
+    } finally {
+      setLoading(false);
+    }
+  }, [status, session]);
+
   useEffect(() => {
     if (status !== "authenticated") return;
 
-    // Check if user is admin
     const adminSlackIds =
       process.env.NEXT_PUBLIC_ADMIN_SLACK_IDS?.split(",") || [];
     const userIsAdmin = adminSlackIds.includes(session.user.SlackID);
@@ -43,35 +75,6 @@ export default function Home() {
         .catch(() => {});
     }
 
-    const fetchEvents = async () => {
-      setLoading(true);
-      setError("");
-      try {
-        let res;
-        if (userIsAdmin) {
-          res = await fetch(`/api/workshops/all`);
-        } else {
-          if (!session.user.email) {
-            setError("No email address found on your account. Contact a Boba organizer.");
-            setLoading(false);
-            return;
-          }
-          res = await fetch(
-            `/api/workshops/by-owner?email=${encodeURIComponent(
-              session.user.email,
-            )}`,
-          );
-        }
-        const json = await res.json();
-        if (!res.ok)
-          throw new Error(json?.error || `Request failed: ${res.status}`);
-        setEvents(json.records || []);
-      } catch (err) {
-        setError(err?.message || "Failed to load your workshops");
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchEvents();
   }, [status, session]);
 

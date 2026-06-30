@@ -17,7 +17,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const url = airtableUrl("Club Workshops", {
+    const url = airtableUrl("tblcIuVemD63IbBuY", {
       fields: ["Club Names", "Status", "Organizer Name", "Slack ID"],
     });
     const controller = new AbortController();
